@@ -37,12 +37,8 @@ def abc():
     return render_template("abc.html", slova=slova)
 
 
-@app.route("/text/")
-def text():
-    return """
 
-<h1>Text</h1>
 
-<p>toto je text</p>
-
-"""
+@app.route("/malina/", methods=['GET', 'POST'])
+def malina():
+    return render_template('malina.html')

@@ -1,0 +1,24 @@
+{% extends 'base.html' %}
+
+
+{% block obsah %}
+
+<h1>Malina</h1>
+
+<h2>formulář</h2>
+<form action="" method="POST">
+    <input type="text" name="q">
+    <input type="password" name="heslo">
+    <input type="submit" value="Odešli to!">
+</form>
+
+
+
+<p><img src="{{ url_for('static', filename='img/maliny.jpg') }}" alt=""></p>
+
+{% for i in range(7) %}
+<p>Maliny jsou nejlepší!</p>
+{% endfor %}
+
+
+{% endblock obsah %}
