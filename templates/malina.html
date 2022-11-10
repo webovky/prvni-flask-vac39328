@@ -3,14 +3,42 @@
 
 {% block obsah %}
 
-<h1>Malina</h1>
+<h1>Malina a BMI</h1>
 
 <h2>formulář</h2>
-<form action="" method="POST">
-    <input type="text" name="q">
-    <input type="password" name="heslo">
-    <input type="submit" value="Odešli to!">
+<form action="" method="GET">
+    <p>Hnotnost:<br>
+      <input type="number" name="hmotnost" placeholder="hnotnost v kg"
+            value="{{ request.args.get('hmotnost') or ''}}">kg
+    </p>
+    <p>Výška: <br>
+      <input type="number" name="vyska" placeholder="výška v cm"
+             value="{{ request.args.get('vyska') or ''}}">cm
+    </p>
+    <p><input type="submit" value="Vypočítej mi to!"></p>
 </form>
+
+{% if bmi != None %}
+  <p>BMI={{ bmi }}</p>
+  
+  {% if bmi < 18.5 %}
+  <p>0 až 18.5: podváha</p>
+  {% elif bmi < 25%}
+  <p>18.5 až 25: normální váha</p>
+  {% elif bmi < 30%}
+  <p>25 až 30: nadváha</p>
+  {% elif bmi < 35%}
+  <p>30 až 35: mírná obezita</p>
+  {% elif bmi < 40%}
+  <p>35 až 40: obezita</p>
+  {% else %}
+  <p>větší než 40:  morbidní obezita</p>
+  {% endif %}
+  
+{% else %}
+  <p style="color:red">Je třeba zadat dvě nenulová čísla!</p>
+{% endif %}
+
 
 
 

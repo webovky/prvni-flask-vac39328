@@ -49,7 +49,8 @@ footer {
   float: right;
   width: 30%;
   border: orange solid 2px;
-  padding: 1ex; }
+  padding: 1ex; 
+}
   
 .odd {
     background-color: orange;
