@@ -60,5 +60,21 @@ footer {
     background-color: lightblue;
 }
 
+.flash{
+  display: block;
+  position: absolute;
+  left: 30%;
+  top: 1ex;
+  width: 40%;
+  border: 2px orange solid;
+  border-radius: 20px;
+  padding: 2ex;
+  background-color: white;
+  font-weight: bold;
+}
+
+.error{
+  color: red;
+}
 
 /*# sourceMappingURL=styles.css.map */
