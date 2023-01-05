@@ -85,9 +85,42 @@ def login_post():
     if page:
         return redirect(url_for("login", page=page))
     return redirect(url_for("login"))
+"""
+@app.route("/registrace/", methods=["GET", "POST"])
+def registrace():
 
+    if request.method == "GET":
+        return render_template("registrace.html")
 
+    if request.method == "POST":
+        jmeno = request.form.get("jmeno")
+        heslo = request.form.get("heslo")
+        heslo2 = request.form.get("heslo znovu")
+    if not (jmeno and heslo2 and heslo):
+        flash("Není vše vyplňeno!", "message")
+        return redirect(url_for("registrace"))
+    if heslo != heslo2:
+        flash("Hesla se neshodují!", "message")
+        return redirect(url_for("registrace"))
+    try:
+        with SQLite("data2.db") as cur:
+            cur.execute("INSERT INTO user (login, passwd) VALUES (?,?)", [jmeno, generate_password_hash(heslo)])
+            cur execute("SELECT passwd FROM user WHERE login = ?",[jmeno])
+            flash("Jsi registrován", "message")
+            flash("Jsi přihlášen", "message")
+            session["uživatel"] = jmeno
+            return redirect(url_for("index"))
+    except sqlite3.IntegrityError:
+        flash("Jmeno již existuje!", "message")
+        return redirect(url_for("registrace"))
+
+return redirect(url_for("registrace"))
+"""
 @app.route("/logout/", methods=["GET", "POST"])
 def logout():
     session.pop("uživatel", None)
     return redirect(url_for("index"))
+
+@app.route("/zkracovač/")
+def zkracovač():
+    return render_template("zkracovač.html")
