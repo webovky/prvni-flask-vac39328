@@ -2,6 +2,9 @@ from flask import Flask, render_template, request, redirect, url_for, session, f
 import functools
 import random
 import string
+import sqlite3
+from mysqlite import SQLite
+
 # from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 app.secret_key = b"totoj e zceLa n@@@hodny retezec nejlep os.urandom(24)"
