@@ -4,8 +4,12 @@
 
 {% block obsah %}
 
+{% if  new%}
+<p>Nová zkratka:<a href="{{ new }}" >{{ new }}</a></p>
+{% endif %}
+
 <h1>Zkracovač</h1>
-<form methode = post>
+<form method="post">
     <p class= "url">
     Zadej URL: <br>
 <input type="text" name ="url" style="width: 77;">

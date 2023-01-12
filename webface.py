@@ -4,6 +4,7 @@ import random
 import string
 import sqlite3
 from mysqlite import SQLite
+import re
 
 # from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
@@ -38,27 +39,67 @@ def info():
 @app.route("/abc/")
 def abc():
     if "uživatel" not in session:
-        flash('Nejsi přihlášen. Tato stránka vyžaduje přihlášení.', 'error')
-        return redirect(url_for("login",page=request.full_path))
+        flash("Nejsi přihlášen. Tato stránka vyžaduje přihlášení.", "error")
+        return redirect(url_for("login", page=request.full_path))
     return render_template("abc.html", slova=slova)
 
-@app.route("/zkracovač/")
-def zkracovač():
-    return render_template("zkracovač.html")
 
-@app.route("/zkracovač/", methods = ["POST"])
+@app.route("/zkracovač/", methods=["GET"])
+def zkracovač():
+    new = request.args.get("new")
+    if "uživatel" in session:
+        with SQLite("data1.db") as cur:
+            res = cur.execute(
+                "SELECT zkratka, adresa FROM adresy WHERE user=?", [session["uživatel"]]
+            )
+            zkratky = res.fetchall
+    else:
+        zkratky = []
+    return render_template("zkracovač.html", new=new, zkratky = zkratky)
+
+
+@app.route("/zkracovač/", methods=["POST"])
 def zkracovač_post():
     url = request.form.get("url")
-    zkratka = ''.join(random.choices(string.ascii_uppercase + string.digits, k=5))
-    with SQLite("data1.db") as cur:
-                cur.execute("INSERT INTO user (zkratka, adresa) VALUES (?,?)", [zkratka, url])
+    if url and re.match("https?://.+", url):
+        zkratka = "".join(random.choices(string.ascii_uppercase + string.digits, k=5))
+        with SQLite("data1.db") as cur:
+            if "uživatel" in session:
+                cur.execute(
+                    "INSERT INTO adresy (zkratka, adresy, user) VALUES (?,?,?)",
+                    [zkratka, url, session["uživatel"]],
+                )
+            else:
+                cur.execute(
+                    "INSERT INTO adresy (zkratka, adresy) VALUES (?,?)", [zkratka, url]
+                )
+        flash("Adresa uložena!")
+        return redirect(url_for("zkracovač", new=zkratka))
+    else:
+        flash("To, co jsi zadal není adresa žádné webové stránky!")
     return redirect(url_for("zkracovač"))
+
+
+@app.route("/zkracovač/<zkratka>", methods=["GET"])
+def dezkracovac(zkratka):
+    print(zkratka)
+    with SQLite("data1.db") as cur:
+        odpoved = cur.execute("SELECT adresy from adresy WHERE zkratka=?", [zkratka])
+        odpoved = odpoved.fetchone()
+        print(type(odpoved))
+        if odpoved:
+            print(odpoved[0])
+            return redirect(odpoved[0])
+        else:
+            flash("Chybně zadaná adresa!")
+    return redirect(url_for("zkracovač"))
+
 
 @app.route("/malina/", methods=["GET", "POST"])
 def malina():
     if "uživatel" not in session:
-        flash('Nejsi přihlášen. Tato stránka vyžaduje přihlášení.', 'error')
-        return redirect(url_for("login",page=request.full_path))
+        flash("Nejsi přihlášen. Tato stránka vyžaduje přihlášení.", "error")
+        return redirect(url_for("login", page=request.full_path))
 
     hmotnost = request.args.get("hmotnost")
     vyska = request.args.get("vyska")
@@ -100,6 +141,8 @@ def login_post():
     if page:
         return redirect(url_for("login", page=page))
     return redirect(url_for("login"))
+
+
 """
 @app.route("/registrace/", methods=["GET", "POST"])
 def registrace():
@@ -131,6 +174,8 @@ def registrace():
 
     return redirect(url_for("registrace"))
 """
+
+
 @app.route("/logout/", methods=["GET", "POST"])
 def logout():
     session.pop("uživatel", None)
