@@ -5,6 +5,8 @@ import string
 import sqlite3
 from mysqlite import SQLite
 import re
+from werkzeug.security import generate_password_hash, check_password_hash
+
 
 # from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
@@ -50,12 +52,15 @@ def zkracovač():
     if "uživatel" in session:
         with SQLite("data1.db") as cur:
             res = cur.execute(
-                "SELECT zkratka, adresa FROM adresy WHERE user=?", [session["uživatel"]]
+                "SELECT zkratka, adresa FROM adresy WHERE user=?", 
+                [session["uživatel"]]
             )
-            zkratky = res.fetchall
+            zkratky = res.fetchall()
+            if not zkratky:
+                zkratky = [] 
     else:
         zkratky = []
-    return render_template("zkracovač.html", new=new, zkratky = zkratky)
+    return render_template("zkracovač.html", new = new, zkratky = zkratky)
 
 
 @app.route("/zkracovač/", methods=["POST"])
@@ -66,12 +71,12 @@ def zkracovač_post():
         with SQLite("data1.db") as cur:
             if "uživatel" in session:
                 cur.execute(
-                    "INSERT INTO adresy (zkratka, adresy, user) VALUES (?,?,?)",
+                    "INSERT INTO adresy (zkratka, adresa, user) VALUES (?,?,?)",
                     [zkratka, url, session["uživatel"]],
                 )
             else:
                 cur.execute(
-                    "INSERT INTO adresy (zkratka, adresy) VALUES (?,?)", [zkratka, url]
+                    "INSERT INTO adresy (zkratka, adresa) VALUES (?,?)", [zkratka, url]
                 )
         flash("Adresa uložena!")
         return redirect(url_for("zkracovač", new=zkratka))
@@ -84,7 +89,7 @@ def zkracovač_post():
 def dezkracovac(zkratka):
     print(zkratka)
     with SQLite("data1.db") as cur:
-        odpoved = cur.execute("SELECT adresy from adresy WHERE zkratka=?", [zkratka])
+        odpoved = cur.execute("SELECT adresa from adresy WHERE zkratka=?", [zkratka])
         odpoved = odpoved.fetchone()
         print(type(odpoved))
         if odpoved:
@@ -143,7 +148,7 @@ def login_post():
     return redirect(url_for("login"))
 
 
-"""
+
 @app.route("/registrace/", methods=["GET", "POST"])
 def registrace():
 
@@ -153,7 +158,7 @@ def registrace():
     if request.method == "POST":
         jmeno = request.form.get("jmeno")
         heslo = request.form.get("heslo")
-        heslo2 = request.form.get("heslo znovu")
+        heslo2 = request.form.get("heslo2")
         if not (jmeno and heslo2 and heslo):
             flash("Není vše vyplňeno!", "message")
             return redirect(url_for("registrace"))
@@ -163,7 +168,7 @@ def registrace():
         try:
             with SQLite("data1.db") as cur:
                 cur.execute("INSERT INTO user (login, passwd) VALUES (?,?)", [jmeno, generate_password_hash(heslo)])
-                cur execute("SELECT passwd FROM user WHERE login = ?",[jmeno])
+                cur.execute("SELECT passwd FROM user WHERE login = ?",[jmeno])
                 flash("Jsi registrován", "message")
                 flash("Jsi přihlášen", "message")
                 session["uživatel"] = jmeno
@@ -173,7 +178,7 @@ def registrace():
             return redirect(url_for("registrace"))
 
     return redirect(url_for("registrace"))
-"""
+
 
 
 @app.route("/logout/", methods=["GET", "POST"])

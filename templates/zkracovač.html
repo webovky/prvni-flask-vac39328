@@ -4,9 +4,7 @@
 
 {% block obsah %}
 
-{% if  new%}
-<p>Nová zkratka:<a href="{{ new }}" >{{ new }}</a></p>
-{% endif %}
+
 
 <h1>Zkracovač</h1>
 <form method="post">
@@ -15,8 +13,19 @@
 <input type="text" name ="url" style="width: 77;">
 <button type = "submit">Zkrátit</button>
     </p>
-
 </form>
 
+{% if  new%}
+<p>Nová zkratka:<a href="{{ new }}" >{{ new }}</a></p>
+{% endif %}
+
+<h2>Seznam uložených zkratek</h2>
+
+<ul>
+{% for zkratka, adresa in zkratky %}
+    <li><a href="{{ url_for('dezkracovac', zkratka=zkratka) }}">{{ zkratka }}</a>  
+        <a href="{{ adresa }}">{{ adresa }}</a></li>
+{% endfor %}
+</ul>
 
 {% endblock obsah %}
