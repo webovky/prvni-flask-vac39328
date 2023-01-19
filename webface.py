@@ -137,7 +137,13 @@ def login_post():
     jmeno = request.form.get("jmeno")
     heslo = request.form.get("heslo")
     page = request.args.get("page")
-    if jmeno == "filip" and heslo == "balon":
+    
+    with SQLite("data1.db") as cur:
+        cur.execute("SELECT passwd FROM user WHERE login = ?", [jmeno])
+        ans = cur.fetchall()
+
+    if ans and check_password_hash(ans[0][0], heslo):
+        flash("Jsi přihlášen!", "message")
         session["uživatel"] = jmeno
         if page:
             return redirect(page)
